@@ -81,10 +81,11 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
+  // @ts-ignore
+  await scheduler.start('check-alarms', mainWindow.webContents);
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
-  await scheduler.start();
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');

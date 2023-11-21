@@ -21,6 +21,12 @@ Checkout [INSTALL.md](./INSTALL.md)
 
 > All datetimes *should* be displayed in local values but *must* be stored in UTC values.
 
+## Notes
+
+### Dev mode
+
+- It takes .6~.8 second for the scheduler to load the worker 
+- It takes ~.001 second for the main process to pass the worker's message through to the renderer process
 
 ## Next steps
 
