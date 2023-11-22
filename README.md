@@ -26,6 +26,7 @@ Checkout [INSTALL.md](./INSTALL.md)
 ### Dev mode
 
 - It takes .6~.8 second for the scheduler to load the worker 
+- It takes .8~1. second for the worker to spawn a database, query it and send back a message to the main process
 - It takes ~.001 second for the main process to pass the worker's message through to the renderer process
 
 ## Next steps
