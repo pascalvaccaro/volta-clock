@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import type { Channels } from '../../main/preload';
+import type { Channels } from '../../shared/typings';
 
 type RingProps = React.PropsWithChildren<{ channel: Channels }>;
 export default function Ring({ channel }: RingProps) {

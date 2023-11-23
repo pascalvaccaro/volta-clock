@@ -5,10 +5,12 @@
 body {
   position: relative;
   color: white;
+  margin: 0;
   height: 100vh;
   overflow-x: hidden;
   min-width: 320px;
   max-width: 350px;
+  width: 100%;
   background: linear-gradient(
     200.96deg,
     #fedc2a -29.09%,
@@ -21,7 +23,10 @@ body {
   justify-content: center;
   align-items: center;
 }
-
+#root {
+  height: 100%;
+  width: 100%;
+}
 .Hello {
   display: flex;
   justify-content: center;

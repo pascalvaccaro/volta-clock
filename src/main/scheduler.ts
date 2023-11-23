@@ -4,8 +4,7 @@ import process from 'node:process';
 import withTypescript from '@breejs/ts-worker';
 import type { WebContents } from 'electron';
 import type { MessageToRemote } from 'rxdb/plugins/storage-remote';
-import { startRxStorage, exposeIpcWorkerRxStorage } from './storage';
-import { getSafeTimeoutFrom } from './util';
+import { exposeIpcWorkerRxStorage } from './storage';
 import type { WorkerEvent } from '../shared/typings';
 
 const withElectron: PluginFunc = (_, Bree) => {
@@ -13,10 +12,8 @@ const withElectron: PluginFunc = (_, Bree) => {
 
   Bree.prototype.start = async function start(name, webContents?: WebContents) {
     if (!webContents) return protoStart.call(this, name);
-    const storage = await startRxStorage();
     const { messages$, channelId } = exposeIpcWorkerRxStorage({
-      storage,
-      pool: this,
+      ipcStorage: this,
     });
 
     this.config.workerMessageHandler = (ev: WorkerEvent) => {
@@ -37,9 +34,7 @@ Bree.extend(withElectron);
 const bree = new Bree({
   root: path.resolve(__dirname, 'jobs'),
   defaultExtension: process.env.NODE_ENV === 'development' ? 'ts' : 'js',
-  jobs: [
-    { name: 'check-alarms', cron: '* * * * *', timeout: getSafeTimeoutFrom() },
-  ],
+  jobs: [{ name: 'check-alarms', cron: '* * * * *' }],
 });
 
 export default bree;

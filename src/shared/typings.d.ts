@@ -1,3 +1,4 @@
+import type { RxCollection, RxDatabase } from 'rxdb';
 import type { MessageToRemote } from 'rxdb/plugins/storage-remote';
 import type { AlarmDocType } from './schemas/alarm';
 
@@ -17,3 +18,9 @@ export type WorkerEvent<T = AlarmDocType | MessageToRemote> = {
   name: string;
   message: IPCMessage<T>;
 };
+
+export type ClockCollections = {
+  alarms: RxCollection<AlarmDocType>;
+};
+
+export type ClockDatabase = RxDatabase<ClockCollections>;

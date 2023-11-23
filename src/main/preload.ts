@@ -4,6 +4,11 @@ import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron';
 import type { AlarmDocType, Channels, IPCMetadata } from '../shared/typings';
 
 const electronHandler = {
+  ipcStorage: {
+    on: ipcRenderer.on.bind(ipcRenderer),
+    removeListener: ipcRenderer.removeListener.bind(ipcRenderer),
+    postMessage: ipcRenderer.postMessage.bind(ipcRenderer),
+  },
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
       ipcRenderer.send(channel, ...args);

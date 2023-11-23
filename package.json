@@ -1,5 +1,6 @@
 {
   "name": "volta-clock",
+  "version": "0.0.1",
   "displayName": "Volta Clock Alarm",
   "description": "A simple clock-alarm application built with Electron",
   "keywords": [
@@ -98,6 +99,7 @@
   },
   "dependencies": {
     "@breejs/ts-worker": "^2.0.0",
+    "@reduxjs/toolkit": "^1.9.7",
     "antd": "^5.11.2",
     "bree": "^9.2.2",
     "dayjs": "^1.11.10",
@@ -106,8 +108,10 @@
     "electron-updater": "^6.1.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-redux": "^8.1.3",
     "react-router-dom": "^6.16.0",
     "react-use": "^17.4.0",
+    "redux": "^4.2.1",
     "rxdb": "^14.17.1",
     "rxjs": "^7.8.1"
   },

@@ -1,20 +1,18 @@
 import process from 'node:process';
 import { parentPort } from 'node:worker_threads';
-import { getRxWorkerStorage } from '../storage';
+import { getRxWorkerStorage } from '../worker';
 import { startRxDatabase } from '../../shared/database';
-import { AlarmDocType, IPCMessage } from '../../shared/typings';
+import type { AlarmDocType, IPCMessage } from '../../shared/typings';
 
 (async (port) => {
   const now = new Date();
   if (port) {
     try {
-      const storage = await getRxWorkerStorage(port);
+      const storage = getRxWorkerStorage(port);
       const db = await startRxDatabase(storage);
       const datetime = db.collections.alarms.statics.getSoonestFrom();
       const body = await db.collections.alarms
-        .findOne({
-          selector: { datetime, active: true },
-        })
+        .findOne({ selector: { datetime, active: true } })
         .exec()
         .then((res) => res?.toJSON());
       if (body) {
