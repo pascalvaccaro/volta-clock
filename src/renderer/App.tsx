@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import { Flex } from 'antd';
 import { useClockDispatch } from './store';
 import { fetchAlarms } from './store/reducers';
 import { Hello, Alarms } from './pages';
@@ -16,11 +17,13 @@ export default function App() {
   return (
     <Router>
       <Ring channel="alarm-ring" />
-      <Routes>
-        <Route path="/" element={<Alarms />} />
-        <Route path="/alarms/:datetime?" element={<Alarm />} />
-        <Route path="/docs" element={<Hello />} />
-      </Routes>
+      <Flex vertical style={{ height: 'calc(100% - 68px)' }}>
+        <Routes>
+          <Route path="/" element={<Alarms />} />
+          <Route path="/alarms/:datetime?" element={<Alarm />} />
+          <Route path="/docs" element={<Hello />} />
+        </Routes>
+      </Flex>
     </Router>
   );
 }

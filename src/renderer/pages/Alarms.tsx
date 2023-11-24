@@ -1,11 +1,10 @@
 import dayjs from 'dayjs';
 import { useCallback } from 'react';
-import { Button, Flex, List, Switch } from 'antd';
-import { PlusSquareOutlined } from '@ant-design/icons';
+import { Button, Flex, List, Switch, Typography } from 'antd';
+import { PlusOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useClockDispatch, useClockSelector } from '../store';
 import { AlarmDocType } from '../../shared/typings';
-import CurrentTime from '../components/CurrentTime';
 import { mutateAlarm } from '../store/reducers';
 
 export default function Alarms() {
@@ -20,12 +19,13 @@ export default function Alarms() {
 
   return (
     <Flex gap="middle" justify="around" vertical>
-      <CurrentTime />
       <List
         header={
-          <Link to="/alarms/">
-            <Button icon={<PlusSquareOutlined />} />
-          </Link>
+          <Flex justify="end" style={{ marginRight: 32 }}>
+            <Link to="/alarms/">
+              <Button shape="circle" type="primary" icon={<PlusOutlined />} />
+            </Link>
+          </Flex>
         }
         itemLayout="horizontal"
         dataSource={alarms}
@@ -34,9 +34,15 @@ export default function Alarms() {
             actions={[
               <Switch checked={item.active} onChange={toggleActive(item)} />,
             ]}
+            style={{ padding: '0px 24px' }}
           >
             <Link to={`/alarms/${item.datetime}`}>
-              <List.Item.Meta title={dayjs(item.datetime).format('HH:mm')} />
+              <Typography.Title level={3} style={{ marginTop: 12 }}>
+                {dayjs(item.datetime).format('HH:mm')}
+              </Typography.Title>
+              <Typography.Paragraph>
+                {dayjs(item.datetime).format('ddd D MMM')} <b>{item.name}</b>
+              </Typography.Paragraph>
             </Link>
           </List.Item>
         )}

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import CurrentTime from './CurrentTime';
 import type { Channels } from '../../shared/typings';
 
 type RingProps = React.PropsWithChildren<{ channel: Channels }>;
@@ -11,5 +12,5 @@ export default function Ring({ channel }: RingProps) {
       }),
     [channel],
   );
-  return null;
+  return <CurrentTime />;
 }
