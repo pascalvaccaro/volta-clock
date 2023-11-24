@@ -1,10 +1,9 @@
 import dayjs from 'dayjs';
 import { noop } from 'rxjs';
 import { addRxPlugin, createRxDatabase } from 'rxdb';
-import { RxDBJsonDumpPlugin } from 'rxdb/plugins/json-dump';
 import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 import type { RxStorageRemote } from 'rxdb/plugins/storage-remote';
-import type { AlarmDocType, ClockDatabase } from './typings';
+import type { ClockDatabase } from './typings';
 import alarmSchema from './schemas/alarm';
 
 // @ts-expect-error
@@ -29,7 +28,6 @@ export const getSoonestFrom = (
 export async function startRxDatabase(storage: RxStorageRemote) {
   let name = `volta-clock-db`;
   if (typeof db === 'undefined') {
-    addRxPlugin(RxDBJsonDumpPlugin);
     addRxPlugin(RxDBQueryBuilderPlugin);
     if (process.env.NODE_ENV !== 'production') {
       name = `.erb/dll/${name}`;

@@ -208,6 +208,12 @@ const configuration: webpack.Configuration = {
       return middlewares;
     },
   },
+
+  resolve: {
+    fallback: {
+      fs: false,
+    },
+  },
 };
 
 export default merge(baseConfig, configuration);

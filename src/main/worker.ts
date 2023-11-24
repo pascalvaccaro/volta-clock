@@ -1,10 +1,10 @@
 import type { MessagePort } from 'node:worker_threads';
 import { Subject } from 'rxjs';
-import { RxStorageDefaultStatics } from 'rxdb';
 import {
   getRxStorageRemote,
   type MessageFromRemote,
 } from 'rxdb/plugins/storage-remote';
+import { RxStorageLokiStatics } from 'rxdb/plugins/storage-lokijs';
 import { STORAGE_KEY, CHANNEL_KEY } from '../shared/constants';
 
 // eslint-disable-next-line import/prefer-default-export
@@ -12,7 +12,7 @@ export function getRxWorkerStorage(parent: MessagePort, key = STORAGE_KEY) {
   const channelId = [CHANNEL_KEY, key].join('|');
   return getRxStorageRemote({
     identifier: 'check-alarms',
-    statics: RxStorageDefaultStatics,
+    statics: RxStorageLokiStatics,
     async messageChannelCreator() {
       const messages$ = new Subject<MessageFromRemote>();
       const listener = (msg: any) => {

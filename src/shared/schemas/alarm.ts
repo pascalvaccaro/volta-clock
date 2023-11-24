@@ -22,6 +22,7 @@ const alarmSchemaLiteral = {
     datetime: {
       type: 'string',
       maxLength: 100,
+      primary: true,
     },
     duration: {
       enum: [1, 3, 5],

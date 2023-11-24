@@ -1,10 +1,9 @@
-import { RxStorageDefaultStatics } from 'rxdb';
+import { RxStorageLokiStatics } from 'rxdb/plugins/storage-lokijs';
 import { getRxStorageIpcRenderer } from 'rxdb/plugins/electron';
 import { map } from 'rxjs';
 import type { StartAppListening } from '.';
 import {
   deleteAlarm,
-  detailAlarm,
   fetchAlarms,
   listAlarms,
   mutateAlarm,
@@ -18,7 +17,7 @@ const startListening = listener.startListening as StartAppListening;
 const storage = getRxStorageIpcRenderer({
   key: STORAGE_KEY,
   mode: 'storage',
-  statics: RxStorageDefaultStatics,
+  statics: RxStorageLokiStatics,
   ipcRenderer: window.electron.ipcStorage,
 });
 
@@ -26,15 +25,15 @@ const withStorage =
   (effect: Parameters<typeof startListening>[0]['effect']): typeof effect =>
   async (_, api) => {
     if (typeof api.extra.alarms === 'undefined')
-      api.extra = await startRxDatabase(storage).then((db) => db.collections);
+      api.extra = await startRxDatabase(storage).then((db) => db);
     return effect(_, api);
   };
 
 startListening({
   actionCreator: fetchAlarms,
-  effect: withStorage(async (_, api) => {
+  effect: withStorage((_, api) => {
     api.extra.alarms
-      .find()
+      .find({ sort: [{ datetime: 'desc' }] })
       .$.pipe(map((res) => res.map((item) => item.toJSON())))
       .subscribe((payload) => api.dispatch(listAlarms(payload)));
   }),
@@ -58,11 +57,10 @@ startListening({
     const datetime = api.extra.alarms.statics.getExactTime(
       action.payload.alarm.datetime,
     );
-    const doc = await api.extra.alarms.upsert({
+    await api.extra.alarms.upsert({
       ...action.payload.alarm,
       datetime,
     });
-    api.dispatch(detailAlarm(doc.toJSON()));
   }),
 });
 

@@ -136,6 +136,12 @@ const configuration: webpack.Configuration = {
       'process.type': '"renderer"',
     }),
   ],
+
+  resolve: {
+    fallback: {
+      fs: false,
+    },
+  },
 };
 
 export default merge(baseConfig, configuration);
