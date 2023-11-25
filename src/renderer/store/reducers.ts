@@ -1,23 +1,16 @@
-import type { PayloadAction, Action } from '@reduxjs/toolkit';
-import { createListenerMiddleware, createSlice } from '@reduxjs/toolkit';
-import type { AlarmDocType } from '../../shared/typings';
+import {
+  createAction,
+  createListenerMiddleware,
+  createSlice,
+  isAnyOf,
+} from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { AlarmDocType, ClockCollections } from '../../shared/typings';
 
 const alarmsSlice = createSlice({
   name: 'alarms',
   initialState: [] as AlarmDocType[],
   reducers: {
-    fetchAlarms(_, __: Action) {
-      return _;
-    },
-    mutateAlarm(
-      _,
-      __: PayloadAction<{ datetime: string; alarm: Partial<AlarmDocType> }>,
-    ) {
-      return _;
-    },
-    deleteAlarm(_, __: PayloadAction<AlarmDocType>) {
-      return _;
-    },
     listAlarms(_, action) {
       return action.payload;
     },
@@ -25,9 +18,16 @@ const alarmsSlice = createSlice({
 });
 
 export const alarms = alarmsSlice.reducer;
-export const { listAlarms, fetchAlarms, mutateAlarm, deleteAlarm } =
-  alarmsSlice.actions;
+export const { listAlarms } = alarmsSlice.actions;
+export const fetchAlarms = createAction('alarms/fetchAlarms');
+export const mutateAlarm = createAction<{
+  datetime: string;
+  alarm: Partial<AlarmDocType>;
+}>('alarms/mutateAlarms');
+export const deleteAlarm = createAction<AlarmDocType>('alarms/deleteAlarm');
+export const isListAlarms = isAnyOf(listAlarms);
 
 export const listener = createListenerMiddleware({
-  extra: {},
+  extra: {} as ClockCollections,
 });
+

@@ -10,15 +10,14 @@ import type { AlarmDocType, IPCMessage } from '../../shared/typings';
     try {
       const storage = getRxWorkerStorage(port);
       const db = await startRxDatabase(storage);
-      const datetime = db.collections.alarms.statics.getSoonestFrom();
+      const $eq = db.collections.alarms.statics.getSoonestFrom();
       const body = await db.collections.alarms
         .findOne({
-          selector: { datetime: { $eq: datetime }, active: { $eq: true } },
+          selector: { datetime: { $eq }, active: { $eq: true } },
         })
         .exec()
         .then((res) => res?.toJSON());
       if (body) {
-        console.log(datetime, body.datetime);
         const message: IPCMessage<AlarmDocType> = {
           channel: 'alarm-ring',
           body,
