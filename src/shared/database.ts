@@ -4,7 +4,7 @@ import { addRxPlugin, createRxDatabase } from 'rxdb';
 import { RxDBQueryBuilderPlugin } from 'rxdb/plugins/query-builder';
 import type { RxStorageRemote } from 'rxdb/plugins/storage-remote';
 import type { ClockDatabase } from './typings';
-import alarmSchema from './schemas/alarm';
+import alarmSchema, { type AlarmDocType } from './schemas/alarm';
 
 // @ts-expect-error
 // eslint-disable-next-line import/no-mutable-exports, no-undef-init
@@ -24,6 +24,18 @@ export const getSoonestFrom = (
     unit === 'minute' ? datetime.set('second', 0) : datetime
   ).toISOString();
 };
+
+export function isJustBeforeNow(this: AlarmDocType) {
+  return this.active && this.datetime === getSoonestFrom();
+}
+
+export function isEqual(this: AlarmDocType, alarm: AlarmDocType) {
+  if (this.name) return this.name === alarm.name;
+  return (
+    this.datetime === alarm.datetime &&
+    (this.name ? this.name === alarm.name : true)
+  );
+}
 
 export async function startRxDatabase(storage: RxStorageRemote) {
   let name = `volta-clock-db`;
@@ -46,6 +58,7 @@ export async function startRxDatabase(storage: RxStorageRemote) {
         alarms: {
           schema: alarmSchema,
           statics: { getSoonestFrom, getExactTime },
+          methods: { isJustBeforeNow, isEqual },
         },
       });
     }

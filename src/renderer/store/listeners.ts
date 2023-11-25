@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { map } from 'rxjs';
 import { RxStorageLokiStatics } from 'rxdb/plugins/storage-lokijs';
 import { getRxStorageIpcRenderer } from 'rxdb/plugins/electron';
 import type { MatchFunction } from '@reduxjs/toolkit/dist/listenerMiddleware/types';
@@ -10,7 +9,9 @@ import {
   fetchAlarms,
   listAlarms,
   mutateAlarm,
-  listener,
+  ringAlarm,
+  addRing,
+  stopRing,
 } from './reducers';
 import type { AlarmDocType } from '../../shared/typings';
 import { STORAGE_KEY } from '../../shared/constants';
@@ -23,7 +24,7 @@ const storage = getRxStorageIpcRenderer({
   statics: RxStorageLokiStatics,
   ipcRenderer: window.electron.ipcStorage,
 });
-// @ts-ignore
+// @ts-expect-error
 const startListening: StartAppListening = (opts) => {
   const effect: Parameters<StartAppListening>[0]['effect'] = async (_, api) => {
     if (typeof api.extra.alarms === 'undefined')
@@ -46,8 +47,7 @@ startListening({
   effect: (_, api) => {
     api.extra.alarms
       .find({ sort: [{ datetime: 'desc' }] })
-      .$.pipe(map((res) => res.map((item) => item.toJSON())))
-      .subscribe((payload) => api.dispatch(listAlarms(payload)));
+      .$.subscribe((payload) => api.dispatch(listAlarms(payload)));
   },
 });
 
@@ -69,14 +69,12 @@ startListening({
     const datetime = api.extra.alarms.statics.getExactTime(
       action.payload.alarm.datetime,
     );
-    const alarm = await api.extra.alarms
-      .upsert({
-        ...action.payload.alarm,
-        datetime,
-      })
-      .then((doc) => doc.toJSON());
-
-    // api.dispatch(...alarm);
+    const alarm = await api.extra.alarms.upsert({
+      ...action.payload.alarm,
+      datetime,
+    });
+    // In case the alarm is set to the next minute
+    if (alarm.isJustBeforeNow()) api.dispatch(ringAlarm(alarm.toJSON()));
   },
 });
 
@@ -87,4 +85,25 @@ startListening({
   },
 });
 
+const isCancelled = (alarm: AlarmDocType) => (action: any) =>
+  listAlarms.match(action) &&
+  !action.payload.find((doc) => doc.active && doc.isEqual(alarm));
+
+startListening({
+  actionCreator: ringAlarm,
+  effect: async (action, api) => {
+    const alarm = action.payload;
+    const timeout = dayjs(alarm.datetime).diff();
+    if (timeout > 6e4 || timeout <= 0) return;
+    // In case the alarm is mutated/deleted before the next minute
+    if (await api.condition(isCancelled(alarm), timeout)) return;
+    api.dispatch(addRing(alarm));
+  },
+});
+
+startListening({
+  actionCreator: stopRing,
+  effect: async (action, api) => {
+    await api.extra.alarms.upsert({ ...action.payload, active: false });
+  },
 });

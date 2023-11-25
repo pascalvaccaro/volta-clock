@@ -5,12 +5,13 @@ import {
 } from 'react-redux';
 import { type TypedStartListening, configureStore } from '@reduxjs/toolkit';
 import type { ClockCollections } from '../../shared/typings';
-import { alarms, listener } from './reducers';
+import { alarms, rings, listener } from './reducers';
 import './listeners';
 
 const store = configureStore({
   reducer: {
     alarms,
+    rings,
   },
   middleware: [listener.middleware],
 });
