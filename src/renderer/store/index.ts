@@ -13,6 +13,7 @@ const store = configureStore({
     alarms,
     rings,
   },
+  devTools: false, // handled by electron's main process
   middleware: [listener.middleware],
 });
 
