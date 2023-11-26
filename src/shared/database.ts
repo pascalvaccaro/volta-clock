@@ -30,7 +30,6 @@ export function isJustBeforeNow(this: AlarmDocType) {
 }
 
 export function isEqual(this: AlarmDocType, alarm: AlarmDocType) {
-  if (this.name) return this.name === alarm.name;
   return (
     this.datetime === alarm.datetime &&
     (this.name ? this.name === alarm.name : true)
