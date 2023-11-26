@@ -19,6 +19,7 @@ const withElectron: PluginFunc = (_, Bree) => {
     this.config.workerMessageHandler = (ev: WorkerEvent) => {
       if (ev.name === name) {
         const { channel, body, metadata = {} } = ev.message;
+        // eslint-disable-next-line no-console
         if (channel === 'error') console.error(body, metadata);
         else if (channel === channelId) {
           messages$.next(body as MessageToRemote);

@@ -34,7 +34,7 @@ export default function Ring({ channel }: RingProps) {
 
   useIpcRenderer({ channel, onAlarm: ringAlarm });
   useEffect(() => {
-    if (rings.size) rings.forEach(ring);
+    if (rings.length) rings.forEach(ring);
   }, [ring, rings]);
 
   return (

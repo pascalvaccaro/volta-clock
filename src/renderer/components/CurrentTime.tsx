@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { Flex, Typography } from 'antd';
 import { useState } from 'react';
-import { useRafLoop } from 'react-use';
+import { useRafLoop } from '../hooks/raf';
 
 export default function CurrentTime() {
   const [current, setCurrent] = useState(dayjs());

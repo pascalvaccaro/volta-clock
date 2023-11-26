@@ -33,15 +33,17 @@ export const ringAlarm = createAction<AlarmDocType>('alarms/rings');
 
 const ringsSlice = createSlice({
   name: 'rings',
-  initialState: new Set<AlarmDocType>(),
+  initialState: [] as AlarmDocType[],
   reducers: {
     addRing(state, action: PayloadAction<AlarmDocType>) {
-      state.add(action.payload);
-      return new Set(state);
+      return [...state, action.payload];
     },
     stopRing(state, action: PayloadAction<AlarmDocType>) {
-      state.delete(action.payload);
-      return new Set(state);
+      return state.filter(
+        (alarm) =>
+          alarm.datetime === action.payload.datetime &&
+          alarm.name === action.payload.name,
+      );
     },
   },
 });

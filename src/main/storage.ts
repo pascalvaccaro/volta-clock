@@ -3,7 +3,7 @@ import { ipcMain } from 'electron';
 import { Subject } from 'rxjs';
 import { exposeIpcMainRxStorage } from 'rxdb/plugins/electron';
 import { getRxStorageLoki } from 'rxdb/plugins/storage-lokijs';
-// @ts-ignore
+// @ts-expect-error
 import LokiFSAdapter from 'lokijs/src/loki-fs-sync-adapter';
 import {
   exposeRxStorageRemote,
