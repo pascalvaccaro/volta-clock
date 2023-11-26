@@ -10,7 +10,12 @@ import {
   MessageToRemote,
   RxStorageRemoteExposeSettings,
 } from 'rxdb/plugins/storage-remote';
-import { CHANNEL_KEY, STORAGE_KEY } from '../shared/constants';
+import {
+  RX_WORKER_CHANNEL,
+  STORAGE_KEY,
+  TX_WORKER_CHANNEL,
+} from '../shared/constants';
+import { getFullChannel } from './util';
 
 const storage = getRxStorageLoki({
   adapter: new LokiFSAdapter(),
@@ -30,13 +35,15 @@ export function exposeIpcWorkerRxStorage({
   ipcStorage: Bree;
 }) {
   const messages$ = new Subject<MessageToRemote>();
-  const channelId = [CHANNEL_KEY, key].join('|');
+  const [channelId, channel] = [RX_WORKER_CHANNEL, TX_WORKER_CHANNEL].map(
+    getFullChannel(key),
+  );
   ipcStorage.on(channelId, (message) => {
     if (message) messages$.next(message);
   });
-  const send: RxStorageRemoteExposeSettings['send'] = (msg) => {
+  const send: RxStorageRemoteExposeSettings['send'] = (body) => {
     ipcStorage.workers.forEach((worker) => {
-      worker.postMessage({ channel: channelId.replace('-', '_'), body: msg });
+      worker.postMessage({ channel, body });
     });
   };
   exposeRxStorageRemote({

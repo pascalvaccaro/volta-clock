@@ -5,25 +5,31 @@ import {
   type MessageFromRemote,
 } from 'rxdb/plugins/storage-remote';
 import { RxStorageLokiStatics } from 'rxdb/plugins/storage-lokijs';
-import { STORAGE_KEY, CHANNEL_KEY } from '../shared/constants';
+import {
+  STORAGE_KEY,
+  RX_WORKER_CHANNEL,
+  TX_WORKER_CHANNEL,
+} from '../shared/constants';
+import { getFullChannel } from './util';
 
 // eslint-disable-next-line import/prefer-default-export
 export function getRxWorkerStorage(parent: MessagePort, key = STORAGE_KEY) {
-  const channelId = [CHANNEL_KEY, key].join('|');
+  const [channel, channelId] = [RX_WORKER_CHANNEL, TX_WORKER_CHANNEL].map(
+    getFullChannel(key),
+  );
   return getRxStorageRemote({
     identifier: 'check-alarms',
     statics: RxStorageLokiStatics,
     async messageChannelCreator() {
       const messages$ = new Subject<MessageFromRemote>();
       const listener = (msg: any) => {
-        if (msg.channel === channelId.replace('-', '_'))
-          messages$.next(msg.body);
+        if (msg.channel === channelId) messages$.next(msg.body);
       };
       parent.on('message', listener);
       return {
         messages$,
-        send(msg) {
-          parent.postMessage({ channel: channelId, body: msg });
+        send(body) {
+          parent.postMessage({ channel, body });
         },
         async close() {
           parent.off('message', listener);
