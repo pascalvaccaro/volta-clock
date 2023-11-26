@@ -6,9 +6,8 @@ import type { RxStorageRemote } from 'rxdb/plugins/storage-remote';
 import type { ClockDatabase } from './typings';
 import alarmSchema, { type AlarmDocType } from './schemas/alarm';
 
-// @ts-expect-error
 // eslint-disable-next-line import/no-mutable-exports, no-undef-init
-let db: ClockDatabase = undefined;
+let db = {} as ClockDatabase;
 
 export const getExactTime = (datetime: string) =>
   dayjs(datetime).set('second', 0).set('milliseconds', 0).toISOString();
@@ -38,7 +37,7 @@ export function isEqual(this: AlarmDocType, alarm: AlarmDocType) {
 
 export async function startRxDatabase(storage: RxStorageRemote) {
   let name = `volta-clock-db`;
-  if (typeof db === 'undefined') {
+  if (!db.collections) {
     addRxPlugin(RxDBQueryBuilderPlugin);
     if (process.env.NODE_ENV !== 'production') {
       name = `.erb/dll/${name}`;
@@ -63,7 +62,7 @@ export async function startRxDatabase(storage: RxStorageRemote) {
     }
   }
 
-  return db as ClockDatabase;
+  return db;
 }
 
 export default db;

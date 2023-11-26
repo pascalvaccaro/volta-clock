@@ -1,21 +1,16 @@
 import {
   createAction,
   createSlice,
-  createListenerMiddleware,
+  type PayloadAction,
 } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
-import type {
-  AlarmDocType,
-  AlarmDocument,
-  ClockCollections,
-} from '../../shared/typings';
+import type { AlarmDocType, AlarmDocument } from '../../shared/typings';
 
 const alarmsSlice = createSlice({
   name: 'alarms',
   initialState: [] as AlarmDocType[],
   reducers: {
     listAlarms(_, action: PayloadAction<AlarmDocument[]>) {
-      return action.payload;
+      return action.payload.map((res) => res.toJSON());
     },
   },
 });
@@ -41,8 +36,8 @@ const ringsSlice = createSlice({
     stopRing(state, action: PayloadAction<AlarmDocType>) {
       return state.filter(
         (alarm) =>
-          alarm.datetime === action.payload.datetime &&
-          alarm.name === action.payload.name,
+          alarm.datetime !== action.payload.datetime &&
+          alarm.name !== action.payload.name,
       );
     },
   },
@@ -50,7 +45,3 @@ const ringsSlice = createSlice({
 
 export const rings = ringsSlice.reducer;
 export const { addRing, stopRing } = ringsSlice.actions;
-
-export const listener = createListenerMiddleware({
-  extra: {} as ClockCollections,
-});

@@ -3,10 +3,10 @@ import {
   useDispatch,
   useSelector,
 } from 'react-redux';
-import { type TypedStartListening, configureStore } from '@reduxjs/toolkit';
-import type { ClockCollections } from '../../shared/typings';
-import { alarms, rings, listener } from './reducers';
-import './listeners';
+import { configureStore } from '@reduxjs/toolkit';
+import { alarms, rings } from './reducers';
+import listener from './listener';
+import './epics';
 
 const store = configureStore({
   reducer: {
@@ -18,12 +18,6 @@ const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-export type StartAppListening = TypedStartListening<
-  RootState,
-  AppDispatch,
-  ClockCollections
->;
-
 export const useClockDispatch: () => AppDispatch = useDispatch;
 export const useClockSelector: TypedUseSelectorHook<RootState> = useSelector;
 export default store;

@@ -1,10 +1,5 @@
 import dayjs from 'dayjs';
-import { RxStorageLokiStatics } from 'rxdb/plugins/storage-lokijs';
-import { getRxStorageIpcRenderer } from 'rxdb/plugins/electron';
-import type { MatchFunction } from '@reduxjs/toolkit/dist/listenerMiddleware/types';
-import type { AppDispatch, StartAppListening } from '.';
 import {
-  listener,
   deleteAlarm,
   fetchAlarms,
   listAlarms,
@@ -14,33 +9,7 @@ import {
   stopRing,
 } from './reducers';
 import type { AlarmDocType } from '../../shared/typings';
-import { STORAGE_KEY } from '../../shared/constants';
-import { startRxDatabase } from '../../shared/database';
-
-const wrapper = listener.startListening as StartAppListening;
-const storage = getRxStorageIpcRenderer({
-  key: STORAGE_KEY,
-  mode: 'storage',
-  statics: RxStorageLokiStatics,
-  ipcRenderer: window.electron.ipcStorage,
-});
-// @ts-expect-error
-const startListening: StartAppListening = (opts) => {
-  const effect: Parameters<StartAppListening>[0]['effect'] = async (_, api) => {
-    if (typeof api.extra.alarms === 'undefined')
-      api.extra = await startRxDatabase(storage).then((db) => db.collections);
-    return opts.effect(_, api);
-  };
-  if (opts.type) return wrapper({ type: opts.type, effect });
-  if (opts.actionCreator)
-    return wrapper({ actionCreator: opts.actionCreator, effect });
-  if (opts.matcher)
-    return wrapper({
-      matcher: opts.matcher as MatchFunction<Parameters<AppDispatch>[0]>,
-      effect,
-    });
-  return wrapper({ predicate: opts.predicate, effect });
-};
+import { startListening } from './listener';
 
 startListening({
   actionCreator: fetchAlarms,

@@ -21,12 +21,14 @@ export default function Ring({ channel }: RingProps) {
     (alarm: AlarmDocType) => {
       const duration = (alarm.duration ?? 1) * 60;
       const source = play(highBip, duration);
-      source.onended = () => dispatch(stopRing(alarm));
       api.warning({
         message: dayjs(alarm.datetime).format('HH:mm'),
         duration,
         description: alarm.name,
-        onClose: source.stop,
+        onClose: () => {
+          source.disconnect();
+          dispatch(stopRing(alarm));
+        },
       });
     },
     [api, dispatch, play],
