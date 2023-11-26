@@ -4,6 +4,9 @@ on: workflow_dispatch
 
 jobs:
   publish:
+    permissions:
+      contents: write
+      packages: read
     runs-on: ${{ matrix.os }}
 
     strategy:

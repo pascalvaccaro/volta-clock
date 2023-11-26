@@ -1,6 +1,6 @@
 {
   "name": "volta-clock",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "displayName": "Volta Clock Alarm",
   "description": "A simple clock-alarm application built with Electron",
   "keywords": [
