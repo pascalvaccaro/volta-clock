@@ -76,11 +76,6 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
-  // @ts-ignore
-  await scheduler.start('check-alarms', mainWindow.webContents);
-
-  mainWindow.loadURL(resolveHtmlPath('index.html'));
-
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
@@ -96,6 +91,10 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
+  // @ts-ignore
+  await scheduler.start('check-alarms', mainWindow.webContents);
+  mainWindow.loadURL(resolveHtmlPath('index.html'));
+
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
@@ -107,7 +106,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 };
 
 /**
