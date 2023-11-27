@@ -82,20 +82,15 @@
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy"
     },
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "setupFiles": [
       "./.erb/scripts/check-build-exists.ts"
     ],
+    "setupFilesAfterEnv": [
+      "./src/setup-jest.ts"
+    ],
     "testEnvironmentOptions": {
-      "url": "http://localhost/",
-      "electron": {
-        "options": [
-          "no-sandbox",
-          "ignore-certificate-errors",
-          "force-device-scale-factor=1"
-        ],
-        "disableHardwareAcceleration": false
-      }
+      "url": "http://localhost/"
     },
     "testPathIgnorePatterns": [
       "release/app/dist",

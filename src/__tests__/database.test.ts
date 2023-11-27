@@ -3,9 +3,7 @@ import {
   getExactTime,
   getSoonestFrom,
   isJustBeforeNow,
-  isEqual,
 } from '../shared/database';
-import { AlarmDocType } from '../shared/typings';
 
 describe('Database', () => {
   it('should deliver the precise time', () => {
@@ -43,60 +41,22 @@ describe('Database', () => {
   describe('isJustBeforeNow', () => {
     it('should return true when the alarm is active and set to the next minute', () => {
       const datetime = getSoonestFrom();
-      const alarm = { active: true, datetime };
+      const alarm = { id: datetime, active: true, datetime };
       const result = isJustBeforeNow.call(alarm);
       expect(result).toBe(true);
     });
     it('should return true when the alarm is inactive and set to the next minute', () => {
       const datetime = getSoonestFrom();
-      const alarm = { active: false, datetime };
+      const alarm = { id: datetime, active: false, datetime };
       const result = isJustBeforeNow.call(alarm);
       expect(result).toBe(false);
     });
     it('should return true when the alarm is active and set after the next minute', () => {
       const base = dayjs().add(2, 'hour');
       const datetime = getSoonestFrom({ base, unit: 'minute' });
-      const alarm = { active: true, datetime };
+      const alarm = { id: datetime, active: true, datetime };
       const result = isJustBeforeNow.call(alarm);
       expect(result).toBe(false);
-    });
-  });
-
-  describe('isEqual', () => {
-    let base: AlarmDocType;
-    let datetime: dayjs.Dayjs;
-
-    beforeEach(() => {
-      datetime = dayjs();
-      base = {
-        datetime: datetime.toISOString(),
-        name: 'first alarm',
-      };
-    });
-
-    it('should return true if both alarms have the same date and name', () => {
-      const alarm = {
-        datetime: datetime.toISOString(),
-        name: 'first alarm',
-      };
-      expect(isEqual.call(base, alarm)).toBe(true);
-    });
-    it('should return false otherwise', () => {
-      const alarm1 = {
-        datetime: datetime.toISOString(),
-        name: 'second alarm',
-      };
-      const alarm2 = {
-        datetime: datetime.add(1, 'minute').toISOString(),
-        name: 'first alarm',
-      };
-      const alarm3 = {
-        datetime: datetime.add(1, 'minute').toISOString(),
-        name: 'second alarm',
-      };
-      expect(isEqual.call(base, alarm1)).toBe(false);
-      expect(isEqual.call(base, alarm2)).toBe(false);
-      expect(isEqual.call(base, alarm3)).toBe(false);
     });
   });
 });
