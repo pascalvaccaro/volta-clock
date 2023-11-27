@@ -1,6 +1,6 @@
 {
   "name": "volta-clock-release",
-  "version": "0.0.3",
+  "version": "1.0.0",
   "description": "A simple alarm-clock built with Electron",
   "license": "MIT",
   "author": {
