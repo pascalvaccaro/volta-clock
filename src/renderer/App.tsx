@@ -3,9 +3,8 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import { Flex } from 'antd';
 import { useClockDispatch } from './store';
 import { fetchAlarms, ringAlarm } from './store/reducers';
-import { Hello, Alarms } from './pages';
+import { Alarms, Alarm } from './pages';
 import Ring from './components/Ring';
-import Alarm from './pages/Alarm';
 import './App.css';
 
 export default function App() {
@@ -21,7 +20,6 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Alarms />} />
           <Route path="/alarms/:id?" element={<Alarm />} />
-          <Route path="/docs" element={<Hello />} />
         </Routes>
       </Flex>
     </Router>
