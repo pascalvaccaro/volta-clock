@@ -92,10 +92,8 @@ const createWindow = async () => {
   // @ts-ignore
   await scheduler.start('check-alarms', mainWindow.webContents);
   mainWindow.loadURL(resolveHtmlPath('index.html'));
-
-  // const menuBuilder = new MenuBuilder(mainWindow);
-  // menuBuilder.buildMenu();
-
+  // Do not show a menu bar
+  mainWindow.setMenu(null);
   // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler((edata) => {
     shell.openExternal(edata.url);
