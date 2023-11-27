@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useCallback, useReducer } from 'react';
+import { useCallback, useEffect, useReducer } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, DatePicker, Flex, Input, TimePicker } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
@@ -30,6 +30,16 @@ function Alarm({ timeFormat, dateFormat }: AlarmProps) {
     if (id) finalize(deleteAlarm(id));
     navigate('/');
   }, [id, finalize, navigate]);
+
+  useEffect(() => {
+    if (id?.includes('_')) {
+      const datetime = dayjs(id.split('_')[0]);
+      if (datetime.isBefore()) {
+        const diff = dayjs().diff(datetime, 'days') + 1;
+        dispatch(setDate(datetime.add(diff, 'days')));
+      }
+    }
+  }, [id, dispatch]);
 
   return (
     <>
