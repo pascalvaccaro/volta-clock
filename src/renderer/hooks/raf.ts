@@ -2,6 +2,10 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 export type RafLoopReturns = [() => void, () => void, () => boolean];
 
+/**
+ * @todo: remove this hook when 'react-use' updates its dependency to react 18.x.x
+ * @link https://github.com/streamich/react-use/blob/325f5bd69904346788ea981ec18bfc7397c611df/package.json#L113
+ */
 export function useRafLoop(
   callback: Parameters<typeof window.requestAnimationFrame>[0],
   initiallyActive = true,

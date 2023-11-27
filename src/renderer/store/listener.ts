@@ -30,6 +30,7 @@ const wrapper = listener.startListening as StartAppListening;
 // @ts-expect-error
 export const startListening: StartAppListening = (opts) => {
   const effect: Parameters<StartAppListening>[0]['effect'] = async (_, api) => {
+    /** @todo find another way to inject collections into api */
     if (typeof api.extra === 'undefined')
       api.extra = await startRxDatabase(getStorage()).then(
         (db) => db.collections,

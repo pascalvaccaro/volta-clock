@@ -22,3 +22,15 @@ export type AppDispatch = typeof store.dispatch;
 export const useClockDispatch: () => AppDispatch = useDispatch;
 export const useClockSelector: TypedUseSelectorHook<RootState> = useSelector;
 export default store;
+
+// tests-only
+export const getStore = (preloadedState = {}, devTools = false) =>
+  configureStore({
+    reducer: {
+      alarms,
+      ring,
+    },
+    devTools,
+    middleware: [listener.middleware],
+    preloadedState,
+  });

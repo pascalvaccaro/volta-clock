@@ -5,7 +5,7 @@ import {
   fetchAlarms,
   listAlarms,
   mutateAlarm,
-  ringAlarm,
+  scheduleAlarm,
   isCancelled,
   setRing,
 } from './reducers';
@@ -24,7 +24,7 @@ startListening({
   effect: async ({ payload }, api) => {
     const body = await api.extra.alarms.statics.getSafeAlarmUpsertBody(payload);
     const alarm = await api.extra.alarms.upsert(body);
-    if (alarm.isJustBeforeNow()) api.dispatch(ringAlarm(alarm.toJSON()));
+    if (alarm.isJustBeforeNow()) api.dispatch(scheduleAlarm(alarm.toJSON()));
   },
 });
 
@@ -36,7 +36,7 @@ startListening({
 });
 
 startListening({
-  actionCreator: ringAlarm,
+  actionCreator: scheduleAlarm,
   effect: async ({ payload: alarm }, api) => {
     const timeout = dayjs(alarm.datetime).diff();
     if (timeout > 6e4 || timeout <= 0) return;

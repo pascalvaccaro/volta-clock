@@ -23,7 +23,6 @@ export const useNotifications = ({
 
   const open = useCallback(
     (alarm: AlarmDocType) => {
-      if (!alarm.active) return;
       const duration = (alarm.duration ?? 1) * 60;
       const source = play(bip, duration);
       api.warning({

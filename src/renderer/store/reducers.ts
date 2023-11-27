@@ -29,7 +29,7 @@ export const mutateAlarm = createAction<{
 }>('alarms/mutateAlarms');
 export const deleteAlarm = createAction<string>('alarms/deleteAlarm');
 
-export const ringAlarm = createAction<AlarmDocType>('alarms/rings');
+export const scheduleAlarm = createAction<AlarmDocType>('alarms/rings');
 
 const ringSlice = createSlice({
   name: 'ring',
