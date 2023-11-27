@@ -7,9 +7,17 @@ import {
 const alarmSchemaLiteral = {
   version: 0,
   title: 'Alarm schema',
-  primaryKey: 'datetime',
+  primaryKey: {
+    key: 'id',
+    fields: ['datetime', 'name'],
+    separator: '_',
+  },
   type: 'object',
   properties: {
+    id: {
+      type: 'string',
+      maxLength: 200,
+    },
     name: {
       description: 'The alarm name',
       type: 'string',
@@ -21,8 +29,6 @@ const alarmSchemaLiteral = {
     },
     datetime: {
       type: 'string',
-      maxLength: 100,
-      primary: true,
     },
     duration: {
       enum: [1, 3, 5],
@@ -64,7 +70,7 @@ const alarmSchemaLiteral = {
       },
     },
   },
-  required: ['datetime'],
+  required: ['id', 'datetime'],
 } as const;
 
 const typedSchema = toTypedRxJsonSchema(alarmSchemaLiteral);

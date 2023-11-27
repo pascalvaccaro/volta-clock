@@ -11,9 +11,9 @@ export default function Alarms() {
   const alarms = useClockSelector((state) => state.alarms);
   const dispatch = useClockDispatch();
   const toggleActive = useCallback(
-    ({ datetime, ...alarm }: AlarmDocType) =>
+    ({ id, ...alarm }: AlarmDocType) =>
       (active: boolean) =>
-        dispatch(mutateAlarm({ datetime, alarm: { ...alarm, active } })),
+        dispatch(mutateAlarm({ id, body: { ...alarm, active } })),
     [dispatch],
   );
 
@@ -36,7 +36,7 @@ export default function Alarms() {
             ]}
             style={{ padding: '0px 24px' }}
           >
-            <Link to={`/alarms/${item.datetime}`}>
+            <Link to={`/alarms/${item.id}`}>
               <Typography.Title level={3} style={{ marginTop: 12 }}>
                 {dayjs(item.datetime).format('HH:mm')}
               </Typography.Title>

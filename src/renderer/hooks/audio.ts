@@ -1,6 +1,6 @@
 const sineWave = (i: number, freq = 440) => Math.sin((i * Math.PI * 2) / freq);
 
-type Sound = Parameters<typeof Float32Array.prototype.map>[0];
+export type Sound = Parameters<typeof Float32Array.prototype.map>[0];
 export const lowBip: Sound = (val, i, arr) =>
   i > arr.length / 2 ? val : sineWave(i, 440);
 

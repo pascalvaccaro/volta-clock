@@ -1,43 +1,27 @@
-import dayjs from 'dayjs';
 import React, { useCallback, useEffect } from 'react';
-import { notification } from 'antd';
-import type { AlarmDocType, Channels } from '../../shared/typings';
-import { useIpcRenderer } from '../hooks/ipc';
 import { useClockSelector, useClockDispatch } from '../store';
-import { ringAlarm, stopRing } from '../store/reducers';
-import { highBip, useSound } from '../hooks/audio';
+import { highBip as bip } from '../hooks/audio';
+import { useIpcRenderer, type UseIpcRendererProps } from '../hooks/ipc';
+import { useNotifications } from '../hooks/notification';
+import { mutateAlarm } from '../store/reducers';
+import type { AlarmDocType } from '../../shared/typings';
 import CurrentTime from './CurrentTime';
 
-type RingProps = React.PropsWithChildren<{ channel: Channels }>;
-export default function Ring({ channel }: RingProps) {
-  const rings = useClockSelector((state) => state.rings);
-  const play = useSound({ sampleRate: 44100 });
+type RingProps = React.PropsWithChildren<UseIpcRendererProps>;
+export default function Ring({ channel, onAlarm }: RingProps) {
+  const ring = useClockSelector((state) => state.ring);
   const dispatch = useClockDispatch();
-  const [api, context] = notification.useNotification({
-    placement: 'top',
-  });
-
-  const ring = useCallback(
-    (alarm: AlarmDocType) => {
-      const duration = (alarm.duration ?? 1) * 60;
-      const source = play(highBip, duration);
-      api.warning({
-        message: dayjs(alarm.datetime).format('HH:mm'),
-        duration,
-        description: alarm.name,
-        onClose: () => {
-          source.disconnect();
-          dispatch(stopRing(alarm));
-        },
-      });
-    },
-    [api, dispatch, play],
+  const onClose = useCallback(
+    ({ id }: AlarmDocType) =>
+      dispatch(mutateAlarm({ id, body: { active: false } })),
+    [dispatch],
   );
+  const [show, context] = useNotifications({ bip, onClose });
+  useIpcRenderer({ channel, onAlarm });
 
-  useIpcRenderer({ channel, onAlarm: ringAlarm });
   useEffect(() => {
-    if (rings.length) rings.forEach(ring);
-  }, [ring, rings]);
+    if (ring.active) show(ring);
+  }, [ring, show]);
 
   return (
     <>

@@ -43,10 +43,11 @@ export default reducer;
 
 const selectAlarms: Selector<RootState, RootState['alarms']> = (state) =>
   state.alarms;
-const selectAlarm = (_: RootState, datetime: string) => datetime;
+const selectAlarm = (_: RootState, id?: string) => id;
 
 export const selector = createSelector(
   [selectAlarms, selectAlarm],
-  (items, datetime) =>
-    items.find((i) => i.datetime === datetime) ?? { datetime },
+  (items, id) =>
+    items.find((i) => i.id === id) ??
+    ({ datetime: dayjs().add(1, 'minute').toISOString() } as AlarmDocType),
 );

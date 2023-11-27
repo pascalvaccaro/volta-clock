@@ -1,4 +1,5 @@
 import {
+  AnyAction,
   createAction,
   createSlice,
   type PayloadAction,
@@ -17,31 +18,28 @@ const alarmsSlice = createSlice({
 
 export const alarms = alarmsSlice.reducer;
 export const { listAlarms } = alarmsSlice.actions;
+export const isCancelled = (alarm: AlarmDocType) => (action: AnyAction) =>
+  listAlarms.match(action) &&
+  !action.payload.find((doc) => doc.active && doc.id === alarm.id);
+
 export const fetchAlarms = createAction('alarms/fetchAlarms');
 export const mutateAlarm = createAction<{
-  datetime: string;
-  alarm: Partial<AlarmDocType>;
+  id?: string;
+  body: Partial<AlarmDocType>;
 }>('alarms/mutateAlarms');
-export const deleteAlarm = createAction<AlarmDocType>('alarms/deleteAlarm');
+export const deleteAlarm = createAction<string>('alarms/deleteAlarm');
 
 export const ringAlarm = createAction<AlarmDocType>('alarms/rings');
 
-const ringsSlice = createSlice({
-  name: 'rings',
-  initialState: [] as AlarmDocType[],
+const ringSlice = createSlice({
+  name: 'ring',
+  initialState: {} as AlarmDocType,
   reducers: {
-    addRing(state, action: PayloadAction<AlarmDocType>) {
-      return [...state, action.payload];
-    },
-    stopRing(state, action: PayloadAction<AlarmDocType>) {
-      return state.filter(
-        (alarm) =>
-          alarm.datetime !== action.payload.datetime &&
-          alarm.name !== action.payload.name,
-      );
+    setRing(state, action: PayloadAction<AlarmDocType>) {
+      return action.payload.active ? action.payload : state;
     },
   },
 });
 
-export const rings = ringsSlice.reducer;
-export const { addRing, stopRing } = ringsSlice.actions;
+export const ring = ringSlice.reducer;
+export const { setRing } = ringSlice.actions;

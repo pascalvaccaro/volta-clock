@@ -13,10 +13,8 @@ type AlarmProps = {
 };
 
 function Alarm({ timeFormat, dateFormat }: AlarmProps) {
-  const { datetime = dayjs().add(1, 'minute').toISOString() } = useParams<{
-    datetime: string;
-  }>();
-  const initState = useClockSelector((state) => selector(state, datetime));
+  const { id } = useParams<{ id: string }>();
+  const initState = useClockSelector((state) => selector(state, id));
   const navigate = useNavigate();
   const finalize = useClockDispatch();
   const [alarm, dispatch] = useReducer(reducer, initState);
@@ -24,14 +22,14 @@ function Alarm({ timeFormat, dateFormat }: AlarmProps) {
   const onSubmit = useCallback(() => {
     const now = dayjs();
     if (now.isAfter(alarm.datetime)) return;
-    finalize(mutateAlarm({ datetime, alarm }));
+    finalize(mutateAlarm({ id, body: alarm }));
     navigate('/');
-  }, [datetime, alarm, finalize, navigate]);
+  }, [id, alarm, finalize, navigate]);
 
   const onClickRemove = useCallback(() => {
-    finalize(deleteAlarm(alarm));
+    if (id) finalize(deleteAlarm(id));
     navigate('/');
-  }, [alarm, finalize, navigate]);
+  }, [id, finalize, navigate]);
 
   return (
     <>
@@ -49,6 +47,7 @@ function Alarm({ timeFormat, dateFormat }: AlarmProps) {
           style={{ minWidth: 200 }}
         />
         <Input
+          pattern="[^_]+"
           placeholder="Nom de l'alarme"
           value={alarm.name ?? ''}
           onChange={(payload) => dispatch(setName(payload))}
@@ -65,13 +64,15 @@ function Alarm({ timeFormat, dateFormat }: AlarmProps) {
         <Button size="large" type="default">
           <Link to="/">Annuler</Link>
         </Button>
-        <Button
-          size="large"
-          type="default"
-          danger
-          onClick={onClickRemove}
-          icon={<DeleteOutlined />}
-        />
+        {id ? (
+          <Button
+            size="large"
+            type="default"
+            danger
+            onClick={onClickRemove}
+            icon={<DeleteOutlined />}
+          />
+        ) : null}
         <Button size="large" type="primary" onClick={onSubmit}>
           Enregistrer
         </Button>

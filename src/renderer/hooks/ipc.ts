@@ -3,7 +3,7 @@ import { PayloadActionCreator } from '@reduxjs/toolkit';
 import type { AlarmDocType, Channels } from '../../shared/typings';
 import { useClockDispatch } from '../store';
 
-type UseIpcRendererProps = {
+export type UseIpcRendererProps = {
   onAlarm: PayloadActionCreator<AlarmDocType>;
   channel: Channels;
 };
@@ -13,11 +13,11 @@ export const useIpcRenderer = ({ onAlarm, channel }: UseIpcRendererProps) => {
 
   useEffect(
     () =>
-      window.electron.ipcRenderer.on(channel, (body) => {
+      window.electron.ipcRenderer.on<AlarmDocType[]>(channel, (body) => {
         const now = new Date();
         // eslint-disable-next-line no-console
         console.log(channel, body, now.getSeconds(), now.getMilliseconds());
-        dispatch(onAlarm(body));
+        body.forEach((alarm) => dispatch(onAlarm(alarm)));
       }),
     [channel, dispatch, onAlarm],
   );

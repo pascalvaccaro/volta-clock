@@ -28,12 +28,30 @@ export function isJustBeforeNow(this: AlarmDocType) {
   return this.active && this.datetime === getSoonestFrom();
 }
 
-export function isEqual(this: AlarmDocType, alarm: AlarmDocType) {
-  return (
-    this.datetime === alarm.datetime &&
-    (this.name ? this.name === alarm.name : true)
-  );
-}
+export const getSafeAlarmUpsertBody = async (payload: {
+  id: string;
+  body: AlarmDocType;
+}) => {
+  let {
+    // eslint-disable-next-line prefer-const
+    body: { id: bodyId, ...body },
+  } = payload;
+  if (payload.id && payload.id !== [body.datetime, body.name].join('_')) {
+    const query = db.collections.alarms.findOne(payload.id);
+    const doc = await query.remove();
+    if (doc) {
+      const { id, ...rest } = doc.toJSON();
+      body = {
+        ...rest,
+        ...body,
+      };
+    }
+  }
+  return {
+    ...body,
+    datetime: getExactTime(body.datetime),
+  };
+};
 
 export async function startRxDatabase(storage: RxStorageRemote) {
   let name = `volta-clock-db`;
@@ -55,8 +73,8 @@ export async function startRxDatabase(storage: RxStorageRemote) {
       await db.addCollections({
         alarms: {
           schema: alarmSchema,
-          statics: { getSoonestFrom, getExactTime },
-          methods: { isJustBeforeNow, isEqual },
+          statics: { getSoonestFrom, getExactTime, getSafeAlarmUpsertBody },
+          methods: { isJustBeforeNow },
         },
       });
     }

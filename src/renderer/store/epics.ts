@@ -1,15 +1,14 @@
 import dayjs from 'dayjs';
+import { startListening } from './listener';
 import {
   deleteAlarm,
   fetchAlarms,
   listAlarms,
   mutateAlarm,
   ringAlarm,
-  addRing,
-  stopRing,
+  isCancelled,
+  setRing,
 } from './reducers';
-import type { AlarmDocType } from '../../shared/typings';
-import { startListening } from './listener';
 
 startListening({
   actionCreator: fetchAlarms,
@@ -22,27 +21,9 @@ startListening({
 
 startListening({
   actionCreator: mutateAlarm,
-  effect: async (action, api) => {
-    // when changing the time of an alarm
-    if (action.payload.datetime !== action.payload.alarm.datetime) {
-      const query = api.extra.alarms.findOne(action.payload.datetime);
-      const alarm = await query.exec();
-      if (alarm) {
-        action.payload.alarm = {
-          ...alarm.toJSON(),
-          ...action.payload.alarm,
-        };
-        await query.remove();
-      }
-    }
-    const datetime = api.extra.alarms.statics.getExactTime(
-      action.payload.alarm.datetime,
-    );
-    const alarm = await api.extra.alarms.upsert({
-      ...action.payload.alarm,
-      datetime,
-    });
-    // In case the alarm is set to the next minute
+  effect: async ({ payload }, api) => {
+    const body = await api.extra.alarms.statics.getSafeAlarmUpsertBody(payload);
+    const alarm = await api.extra.alarms.upsert(body);
     if (alarm.isJustBeforeNow()) api.dispatch(ringAlarm(alarm.toJSON()));
   },
 });
@@ -50,29 +31,17 @@ startListening({
 startListening({
   actionCreator: deleteAlarm,
   effect: async (action, api) => {
-    await api.extra.alarms.findOne(action.payload.datetime).remove();
+    await api.extra.alarms.findOne(action.payload).remove();
   },
 });
-
-const isCancelled = (alarm: AlarmDocType) => (action: any) =>
-  listAlarms.match(action) &&
-  !action.payload.find((doc) => doc.active && doc.isEqual(alarm));
 
 startListening({
   actionCreator: ringAlarm,
-  effect: async (action, api) => {
-    const alarm = action.payload;
+  effect: async ({ payload: alarm }, api) => {
     const timeout = dayjs(alarm.datetime).diff();
     if (timeout > 6e4 || timeout <= 0) return;
-    // In case the alarm is mutated/deleted before the next minute
+    // In case the alarm is edited/deleted before the next minute
     if (await api.condition(isCancelled(alarm), timeout)) return;
-    api.dispatch(addRing(alarm));
-  },
-});
-
-startListening({
-  actionCreator: stopRing,
-  effect: async (action, api) => {
-    await api.extra.alarms.upsert({ ...action.payload, active: false });
+    api.dispatch(setRing(alarm));
   },
 });

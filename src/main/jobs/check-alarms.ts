@@ -12,13 +12,13 @@ import type { AlarmDocType, IPCMessage } from '../../shared/typings';
       const db = await startRxDatabase(storage);
       const $eq = db.collections.alarms.statics.getSoonestFrom();
       const body = await db.collections.alarms
-        .findOne({
+        .find({
           selector: { datetime: { $eq }, active: { $eq: true } },
         })
         .exec()
-        .then((res) => res?.toJSON());
-      if (body) {
-        const message: IPCMessage<AlarmDocType> = {
+        .then((res) => res.map((doc) => doc.toJSON()));
+      if (body.length) {
+        const message: IPCMessage<AlarmDocType[]> = {
           channel: 'alarm-ring',
           body,
           metadata: {
