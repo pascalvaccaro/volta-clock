@@ -1,8 +1,13 @@
 import dayjs from 'dayjs';
+import { getRxStorageMemory } from 'rxdb/plugins/storage-memory';
+import type { RxStorageRemote } from 'rxdb/plugins/storage-remote';
+import type { AlarmDocType, ClockDatabase } from '../shared/typings';
 import {
   getExactTime,
+  getSafeAlarmUpsertBody,
   getSoonestFrom,
   isJustBeforeNow,
+  startRxDatabase,
 } from '../shared/database';
 
 describe('Database', () => {
@@ -57,6 +62,41 @@ describe('Database', () => {
       const alarm = { id: datetime, active: true, datetime };
       const result = isJustBeforeNow.call(alarm);
       expect(result).toBe(false);
+    });
+  });
+
+  describe('getSafeAlarmUpsertBody', () => {
+    let db: ClockDatabase;
+    beforeAll(async () => {
+      const storage = getRxStorageMemory() as unknown as RxStorageRemote;
+      db = await startRxDatabase(storage);
+    });
+
+    it('should not do anything when creating an alarm', async () => {
+      const body = {
+        datetime: getSoonestFrom(),
+      } as AlarmDocType;
+      const result = await getSafeAlarmUpsertBody({ id: '', body });
+      expect(result.datetime).toEqual(body.datetime);
+      expect(result).not.toHaveProperty('id');
+    });
+
+    it('should remove the existing alarm and merge its fields to create a new alarm', async () => {
+      const doc = await db.collections.alarms.upsert({
+        datetime: getSoonestFrom(),
+        name: 'alarm1',
+      });
+      const { id, ...existing } = doc.toJSON();
+      const body = {
+        ...existing,
+        name: 'alarm2',
+      } as AlarmDocType;
+      const result = await getSafeAlarmUpsertBody({ id, body });
+      expect(result.datetime).toEqual(body.datetime);
+      expect(result.name).toEqual('alarm2');
+
+      const checkRemoved = await db.collections.alarms.findOne(id).exec();
+      expect(checkRemoved).toBeNull();
     });
   });
 });
